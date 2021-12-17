@@ -17,3 +17,13 @@ def removing_spaces(text):
         i += 1
 
     return string
+    
+    
+#adding tap to prettify 
+def adding_spaces(ind):
+    i = 0
+    string = str()
+    while i < ind:
+        string += "     "
+        i += 1
+    return string
