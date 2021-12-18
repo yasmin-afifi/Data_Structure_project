@@ -187,16 +187,15 @@ def depth_traversal(node, depth, js_str, square, last, comma):
 
 
 def main():
-    #passing xml data as a string in txt
-    txt = " "
+    #passing xml data as a string in str
+    str = " "
 
-    tree = XmlTree(txt)
+    tree = XmlTree(str)
     print(xmlToJson(tree))
 
 
     with open("given.json", "w") as json_file:
         json_file.write(xmlToJson(tree).__str__())
         json_file.close()
-    #print(tree.root.tag)
-
+    
 main()
