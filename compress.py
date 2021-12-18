@@ -95,7 +95,7 @@ def generate_compress_code(name):
     s= ''
     text = file.read()
     trieBits = []
-    restore_huffman_tree(root, trieBits)
+    store_huffman_tree(root, trieBits)
     trieBits = "".join(trieBits)
     for i in text:
         s+= Tree[i]
@@ -105,25 +105,25 @@ def generate_compress_code(name):
         bitArray.tofile(compress_file)
     return s
 
-#function udes to restore Huffman tree to use it in decompression
-def restore_huffman_tree(node, bitArray):
+#function udes to store Huffman tree to use it in decompression
+def store_huffman_tree(node, bitArray):
     if node.is_leaf():
         bitArray.append('1')
         bitArray.append(format(ord(node.symbol), '08b'))
         return
 
     bitArray.append('0')
-    restore_huffman_tree(node.left, bitArray)
-    restore_huffman_tree(node.right, bitArray)
+    store_huffman_tree(node.left, bitArray)
+    store_huffman_tree(node.right, bitArray)
 
-#function udes to store Huffman tree to use it in decompression
-def store_Huffman_tree(trieBits):
+#function used to restore Huffman tree to use it in decompression
+def restore_Huffman_tree(trieBits):
     isLeaf = int(trieBits.pop(0))
     if isLeaf:
         char = chr(int("".join([trieBits.pop(0) for _ in range(8)]), 2))
         return Node(-1, char, None, None)
 
-    return Node(-1, '\0', store_Huffman_tree(trieBits), store_Huffman_tree(trieBits))
+    return Node(-1, '\0', restore_Huffman_tree(trieBits), restore_Huffman_tree(trieBits))
 
 def decompress_Huffman(file_name) :
     # Read file bits as string
@@ -138,7 +138,7 @@ def decompress_Huffman(file_name) :
     Bits = list(bitArray[64: 64 + BitsLength])
 
     # Construct the trie
-    root = store_Huffman_tree(Bits)
+    root = restore_Huffman_tree(Bits)
 
     # Get characters number
     charsLength = int(bitArray[64 + BitsLength: 64 + BitsLength + 64], 2)
