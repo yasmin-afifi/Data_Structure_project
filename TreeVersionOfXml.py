@@ -94,10 +94,10 @@ class XmlTree:
 
 
 def main():
-    #passing xml data as a string in txt
-    txt = " "
+    #passing xml data as a string in str
+    str = " "
 
-    tree = XmlTree(txt)
+    tree = XmlTree(str)
     print(xmlToJson(tree))
 
 
