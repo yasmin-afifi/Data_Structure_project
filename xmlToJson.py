@@ -115,7 +115,6 @@ def xmlToJson(xmltree):
     depth_traversal(xmltree.getRoot(), 1, jsonString, square, False, False)
     #adding the last bracket closing to the first one in json format
     jsonString += "\n}"
-    print(jsonString)
     return jsonString
 
 
