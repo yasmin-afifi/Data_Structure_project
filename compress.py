@@ -1,9 +1,8 @@
+from final_formatting import *
+from bitstring import BitArray
 
-Tree = {}
 #compress file by deleting spaces and new lines
-def minify_file(name):
-    file2 = open(name,'r')
-    text = file2.read()
+def minify_file(text):
     k = 0
     t = ('>'.join([subtext.strip('\n' ' ' '\t') for subtext in text.split('>')]))
     i = 0
@@ -22,10 +21,24 @@ def minify_file(name):
     return t
 
 
+Tree = {}
+class Node:
+    def __init__(self, freq, symbol, left=None, right=None):
+        self.freq = freq
+        self.symbol = symbol
+        self.left = left
+        self.right = right
+        self.huff = ''
+
+    def is_leaf(self) -> bool:
+        return self.left is None and self.right is None
+
+
 #function to count freq of act char in compressed spaces and lines file
 def frequency_of_chars(name):
+    f = open(name,'r')
     frequency = {}
-    Lines = minify_file(name)
+    Lines = f.read()
     for char in Lines:
         if char in frequency:
             frequency[char] += 1
@@ -59,6 +72,7 @@ def creat_Tree(name):
     return Nodes[0]
 
 
+#store encoded data in array
 def compress_Huffman(node, val=''):
     # huffman code for current node
     newVal = val + str(node.huff)
@@ -76,41 +90,78 @@ def compress_Huffman(node, val=''):
         Tree[node.symbol] = newVal
 
 def generate_compress_code(name):
-    minify_file(name)
-    creat_Tree(name)
+    file = open(name,'r')
+    root = creat_Tree(name)
     s= ''
-    text = minify_file(name)
+    text = file.read()
+    trieBits = []
+    restore_huffman_tree(root, trieBits)
+    trieBits = "".join(trieBits)
     for i in text:
         s+= Tree[i]
+    with open(name.split('.')[0]+'.Huffman', 'wb') as compress_file:
+        compressed_data = format(len(trieBits), '064b') + trieBits + format(len(text), '064b') + s
+        bitArray = BitArray(bin=compressed_data)
+        bitArray.tofile(compress_file)
     return s
 
+#function udes to restore Huffman tree to use it in decompression
+def restore_huffman_tree(node, bitArray):
+    if node.is_leaf():
+        bitArray.append('1')
+        bitArray.append(format(ord(node.symbol), '08b'))
+        return
 
+    bitArray.append('0')
+    restore_huffman_tree(node.left, bitArray)
+    restore_huffman_tree(node.right, bitArray)
 
-def Huffman_Decompress(encoded_data, huffman_tree):
-    tree_head = huffman_tree
-    decoded_output = []
-    for x in encoded_data:
-        if x == '1':
-            huffman_tree = huffman_tree.right
-        elif x == '0':
-            huffman_tree = huffman_tree.left
-        if huffman_tree.left is None and huffman_tree.right is None:
-            decoded_output.append(huffman_tree.symbol)
-            huffman_tree = tree_head
+#function udes to store Huffman tree to use it in decompression
+def store_Huffman_tree(trieBits):
+    isLeaf = int(trieBits.pop(0))
+    if isLeaf:
+        char = chr(int("".join([trieBits.pop(0) for _ in range(8)]), 2))
+        return Node(-1, char, None, None)
 
-    string = ''.join([str(item) for item in decoded_output])
-    return string
+    return Node(-1, '\0', store_Huffman_tree(trieBits), store_Huffman_tree(trieBits))
 
-def Decode_Huffman(name):
-    bin = generate_compress_code(name)
-    node = creat_Tree(name)
-    return Huffman_Decompress(bin, node)
+def decompress_Huffman(file_name) :
+    # Read file bits as string
+    with open(file_name, 'rb') as compressed_file:
+        data = compressed_file.read()
+        bitArray = "".join(map(lambda byte: format(byte, '08b'), data))
 
-class Node:
-    def __init__(self, freq, symbol, left=None, right=None):
-        self.freq = freq
-        self.symbol = symbol
-        self.left = left
-        self.right = right
-        self.huff = ''
+    # Get the length of the trie model
+    BitsLength = int(bitArray[:64], 2)
 
+    # Get the trie bits
+    Bits = list(bitArray[64: 64 + BitsLength])
+
+    # Construct the trie
+    root = store_Huffman_tree(Bits)
+
+    # Get characters number
+    charsLength = int(bitArray[64 + BitsLength: 64 + BitsLength + 64], 2)
+
+    # Get the encoded bits
+    encoded_text = bitArray[64 + BitsLength + 64:]
+
+    # Decode the text using the trie
+    chars = []
+    index = 0
+    for i in range(charsLength):
+        x = root
+        while not x.is_leaf():
+            bit = int(encoded_text[index])
+            if bit:
+                x = x.right
+            else:
+                x = x.left
+
+            index += 1
+
+        chars.append(x.symbol)
+    text = ''
+    for c in chars:
+        text += c
+    return formatting(text)
