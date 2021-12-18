@@ -1,4 +1,5 @@
 import re
+import json
 
 class Node:
     def __init__(self,label):
@@ -52,14 +53,13 @@ class Node:
 
 
 class XmlTree:
-    def __init__(self,filename):
+    def __init__(self,file):
+        self.xml_file=file
         self.cleanerXML = []
-        fhandle = open(filename)
         #converting the xml file into a list without the spaces and new lines
-        for line in fhandle:
-            y = line.strip()
-            x = re.split('<',y)
-            self.cleanerXML = self.cleanerXML + x
+        datalist = re.split('<', self.xml_file)
+        for i in datalist:
+            self.cleanerXML.append(i.strip())
         #the following line removes every '' element in the resulting list as split gives a space element before the splitting pattern
         self.cleanerXML = [j for j in self.cleanerXML if j != '']
         #Creating the root of the tree choosing the first element in the created list and removing any tags or unwanted charecters
@@ -92,8 +92,13 @@ class XmlTree:
     def getRoot(self):
         return self.root
 
+
 def main():
-    #we pass the name of the xml file into the XmlTree() function to convert it to a tree
-    tree = XmlTree('example.xml')
-    
+    #passing xml data as a string in txt
+    txt = " "
+
+    tree = XmlTree(txt)
+    print(xmlToJson(tree))
+
+
 main()
