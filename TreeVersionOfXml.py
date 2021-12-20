@@ -98,7 +98,6 @@ def main():
     str = " "
 
     tree = XmlTree(str)
-    print(xmlToJson(tree))
 
 
 main()
