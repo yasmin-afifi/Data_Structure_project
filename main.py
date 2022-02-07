@@ -7,6 +7,8 @@ from PyQt5 import QtWidgets, uic
 
 from compress import *
 from xmlToJson import *
+from Visualize_Graph import *
+from tkinter import *
 
 from XML_GUI import Ui_MainWindow
 import os
@@ -74,6 +76,13 @@ class MainWindow(QMainWindow, QWidget):
         data = main(formatting(str(self.ui.textEdit.toPlainText())))
         self.ui.textEdit.setText(data)
 
+    def visulaize_Graph(self):
+        add_follower_edges((str(self.ui.textEdit.toPlainText())))
+        data = network_analysis()
+        self.ui.textBrowser.setText(data)
+
+
+
 
     def menu(self):
         mainMenu = self.menuBar()
@@ -91,6 +100,7 @@ class MainWindow(QMainWindow, QWidget):
         detectAction = QAction(QIcon('detect'), " Detect Errors", self)
         modifyErrorsAction = QAction(QIcon('modify error'), " MOdify Errors", self)
         xmlToJsonAction = QAction(QIcon('xml2Json'), " XML to Json", self)
+        VisulizeGraphAction = QAction(QIcon('VisualizeGraph'), " visualize Graph", self)
 
         fileMenu.addAction(openAction)
         fileMenu.addAction(saveAction)
@@ -104,6 +114,7 @@ class MainWindow(QMainWindow, QWidget):
         viewMenu.addAction(detectAction)
         viewMenu.addAction(modifyErrorsAction)
         viewMenu.addAction(xmlToJsonAction)
+        viewMenu.addAction(VisulizeGraphAction)
 
 
         openAction.triggered.connect(self.browsefiles)
@@ -116,6 +127,7 @@ class MainWindow(QMainWindow, QWidget):
         detectAction.triggered.connect(self.detect_errors)
         modifyErrorsAction.triggered.connect(self.modify_errors)
         xmlToJsonAction.triggered.connect(self.xmltojson)
+        VisulizeGraphAction.triggered.connect(self.visulaize_Graph)
 
 
 app = QApplication(sys.argv)
